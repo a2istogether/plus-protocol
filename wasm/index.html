@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fast Protocol WASM Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .disconnect {
+            background: #f44336;
+        }
+        .disconnect:hover {
+            background: #da190b;
+        }
+        #output {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .status.connected {
+            background: #4CAF50;
+            color: white;
+        }
+        .status.disconnected {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            Fast Protocol WASM Demo
+            <span id="status" class="status disconnected">Disconnected</span>
+        </h1>
+        
+        <div class="section">
+            <label for="server-url">WebSocket Server URL:</label>
+            <input type="text" id="server-url" value="ws://localhost:8080" placeholder="ws://localhost:8080">
+            <button id="connect-btn" onclick="connect()">Connect</button>
+            <button id="disconnect-btn" class="disconnect" onclick="disconnect()" disabled>Disconnect</button>
+        </div>
+
+        <div class="section">
+            <label for="route">Route:</label>
+            <input type="text" id="route" value="/ping" placeholder="/ping">
+        </div>
+
+        <div class="section">
+            <label for="message">Message:</label>
+            <input type="text" id="message" value="Hello, World!" placeholder="Type your message">
+            <button onclick="sendPing()">/ping</button>
+            <button onclick="sendEcho()">/echo</button>
+            <button onclick="sendJson()">/json</button>
+        </div>
+
+        <div class="section">
+            <label>Output:</label>
+            <div id="output"></div>
+            <button onclick="clearOutput()">Clear</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import init, { ProtocolClient, encode_string, decode_string, encode_json, decode_json } from './pkg/fast_protocol_wasm.js';
+
+        let client = null;
+
+        async function initWasm() {
+            await init();
+            log('WASM module loaded');
+            client = new ProtocolClient();
+            log('Protocol client created');
+        }
+
+        window.log = function(message) {
+            const output = document.getElementById('output');
+            const time = new Date().toLocaleTimeString();
+            output.textContent += `[${time}] ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        window.connect = async function() {
+            const url = document.getElementById('server-url').value;
+            
+            try {
+                log(`Connecting to ${url}...`);
+                await client.connect(url);
+                log('Connected!');
+                
+                document.getElementById('status').textContent = 'Connected';
+                document.getElementById('status').className = 'status connected';
+                document.getElementById('connect-btn').disabled = true;
+                document.getElementById('disconnect-btn').disabled = false;
+            } catch (e) {
+                log(`Connection error: ${e}`);
+            }
+        }
+
+        window.disconnect = function() {
+            try {
+                client.disconnect();
+                log('Disconnected');
+                
+                document.getElementById('status').textContent = 'Disconnected';
+                document.getElementById('status').className = 'status disconnected';
+                document.getElementById('connect-btn').disabled = false;
+                document.getElementById('disconnect-btn').disabled = true;
+            } catch (e) {
+                log(`Disconnect error: ${e}`);
+            }
+        }
+
+        window.sendPing = async function() {
+            if (!client.is_connected()) {
+                log('Not connected!');
+                return;
+            }
+            
+            try {
+                log('Sending ping...');
+                const data = encode_string('');
+                const response = await client.request('/ping', data);
+                log('Received: pong');
+            } catch (e) {
+                log(`Error: ${e}`);
+            }
+        }
+
+        window.sendEcho = async function() {
+            if (!client.is_connected()) {
+                log('Not connected!');
+                return;
+            }
+            
+            const message = document.getElementById('message').value;
+            
+            try {
+                log(`Sending echo: ${message}`);
+                const data = encode_string(message);
+                const response = await client.request('/echo', data);
+                log(`Received: ${message}`);
+            } catch (e) {
+                log(`Error: ${e}`);
+            }
+        }
+
+        window.sendJson = async function() {
+            if (!client.is_connected()) {
+                log('Not connected!');
+                return;
+            }
+            
+            const message = document.getElementById('message').value;
+            
+            try {
+                const payload = { message, timestamp: Date.now() };
+                log(`Sending JSON: ${JSON.stringify(payload)}`);
+                
+                const data = encode_json(payload);
+                const response = await client.request('/json', data);
+                log(`Received JSON response`);
+            } catch (e) {
+                log(`Error: ${e}`);
+            }
+        }
+
+        window.clearOutput = function() {
+            document.getElementById('output').textContent = '';
+        }
+
+        // Initialize on page load
+        initWasm().catch(console.error);
+    </script>
+</body>
+</html>
+

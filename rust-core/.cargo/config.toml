@@ -1,0 +1,43 @@
+# Cargo configuration for Fast Protocol
+
+[build]
+# Use all available CPU cores for building
+jobs = 8
+
+[target.x86_64-unknown-linux-gnu]
+# Linux-specific linker flags
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[target.x86_64-apple-darwin]
+# macOS-specific settings
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[target.x86_64-pc-windows-msvc]
+# Windows-specific settings
+rustflags = []
+
+[profile.release]
+# Optimizations for release builds
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.bench]
+# Benchmark profile
+inherits = "release"
+
+[profile.dev]
+# Development profile
+opt-level = 0
+debug = true
+
+[alias]
+# Useful cargo aliases
+b = "build"
+br = "build --release"
+t = "test"
+tr = "test --release"
+c = "check"
+r = "run"
+

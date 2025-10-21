@@ -1,0 +1,23 @@
+{
+  "name": "fast-protocol-wasm",
+  "version": "0.1.0",
+  "description": "Fast Protocol WebAssembly bindings for browser",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "wasm-pack build --target web --out-dir pkg",
+    "build:nodejs": "wasm-pack build --target nodejs --out-dir pkg-node",
+    "build:bundler": "wasm-pack build --target bundler --out-dir pkg-bundler",
+    "build:all": "npm run build && npm run build:nodejs && npm run build:bundler"
+  },
+  "keywords": [
+    "wasm",
+    "webassembly",
+    "protocol",
+    "network",
+    "websocket"
+  ],
+  "author": "Protocol Team",
+  "license": "MIT"
+}
+

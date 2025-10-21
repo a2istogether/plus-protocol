@@ -1,0 +1,85 @@
+# Rust
+target/
+Cargo.lock
+*.rs.bk
+*.pdb
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+*.tgz
+package-lock.json
+
+# WASM
+pkg/
+wasm-pack.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+*.dylib
+*.so
+*.dll
+*.a
+*.lib
+*.exe
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Swift
+.build/
+*.xcodeproj
+*.xcworkspace
+.swiftpm/
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+.gradle/
+build/
+local.properties
+
+# Logs
+*.log
+
+# Test coverage
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Documentation
+docs/_build/
+site/
+
