@@ -12,6 +12,7 @@ pub mod compression;
 pub mod packet;
 pub mod error;
 pub mod middleware;
+pub mod jobs;
 
 #[cfg(feature = "nodejs")]
 pub mod node_bridge;

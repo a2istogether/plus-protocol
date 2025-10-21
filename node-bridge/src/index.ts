@@ -936,6 +936,11 @@ export function createRouter(): Router {
   return new Router();
 }
 
+// Export job queue
+export * from './jobs';
+export { JobQueue, createQueue, JobStatus, JobPriority } from './jobs';
+export type { Job, JobHandler, JobConfig, QueueStats } from './jobs';
+
 // Export everything
 export default {
   Server,

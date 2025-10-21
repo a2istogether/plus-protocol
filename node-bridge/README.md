@@ -11,6 +11,7 @@ High-speed, cross-platform custom network protocol for Node.js with Express-styl
 - 🎯 **Express-style API**: Familiar `on(route, handler)` pattern
 - 🔌 **Middleware Support**: Composable request processing
 - 📡 **Heartbeat**: Built-in keep-alive mechanism
+- ⚙️ **Background Jobs**: Protocol-level async job queue with retry & scheduling
 
 ## Installation
 
@@ -49,6 +50,37 @@ server.on('/json', async (ctx) => {
 await server.listen('127.0.0.1:8080');
 console.log('Server listening on 127.0.0.1:8080');
 ```
+
+### Background Jobs
+
+```javascript
+const { createQueue, JobPriority } = require('fast-protocol');
+
+// Create job queue
+const queue = createQueue(4); // 4 workers
+
+// Register handler
+queue.register('send-email', async (job) => {
+  const { to, subject, body } = job.payload;
+  await sendEmail(to, subject, body);
+  return { sent: true };
+});
+
+// Start queue
+await queue.start();
+
+// Enqueue job
+const jobId = await queue.enqueue('send-email', {
+  to: 'user@example.com',
+  subject: 'Welcome!',
+  body: 'Thanks for signing up!'
+});
+
+// Schedule job for later
+await queue.schedule('backup', { db: 'main' }, 60000); // 1 minute
+```
+
+See [JOB_QUEUE.md](JOB_QUEUE.md) for complete documentation.
 
 ### Client
 

@@ -19,6 +19,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 rand = "0.8"
 async-trait = "0.1"
+uuid = { version = "1.6", features = ["v4", "serde"] }
 
 # Encryption
 aes-gcm = "0.10"
